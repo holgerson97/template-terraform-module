@@ -1,5 +1,5 @@
 ---
-name: "\1F680 Feature request"
+name: "\U0001F680 Feature request"
 about: Create an issue to request a new feature
 title: ''
 labels: feature_request
