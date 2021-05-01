@@ -31,15 +31,13 @@ go-all: gofmt golint govet
 
 gotest-basic: ## test units files
 	cd unit-tests/
-	go test terraform_test.go -run TestInitAndApplyAndIdempotent -v
+	go test terraform_test.go -run TestInitAndApplyAndIdempotent -v -timeout 60m
 
 gotest-required:
 	cd unit-tests/
-	go test terraform_test.go -run TestAzureResourcesRequired -v
 
 gotest-optional:
 	cd unit-tests/
-	go test terraform_test.go -run TestAzureResourcesOptional -v
 
 gotest-all:
 	cd unit-tests/
@@ -61,7 +59,7 @@ terraApplyAndDestroy: ## Init, Apply and Destroy Terraform configuration
 	terraform apply --auto-approves
 	terraform destroy --auto-approve
 
-terra-all: terrafmt terralint terravalidate terraApplyAndDestroy
+terra-all: terrafmt terralint terravalidate
 
 clean:
 	go clean
