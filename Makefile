@@ -35,13 +35,19 @@ gotest-basic: ## test units files
 
 gotest-required:
 	cd unit-tests/
+	go test terraform_test.go -run TestAzureResourcesRequired -v -timeout 60m
 
 gotest-optional:
 	cd unit-tests/
+	go test terraform_test.go -run TestAzureResourcesOptional -v -timeout 60m
 
 gotest-all:
 	cd unit-tests/
-	go test -v
+	go test -v -timeout 60m
+
+terrainit:
+	cd examples/
+	terraform init
 
 terrafmt:  ## format terrafrom source files
 	terraform fmt -recursive
@@ -51,12 +57,14 @@ terralint: ## lint terraform source files
 	tflint examples/
 
 terravalidate: ## valdiate terraform configuration
-	terraform validate module/
+	cd examples/
+	terraform init
+	terraform validate
 
 terraApplyAndDestroy: ## Init, Apply and Destroy Terraform configuration
 	cd examples
 	terraform init
-	terraform apply --auto-approves
+	terraform apply --auto-approve
 	terraform destroy --auto-approve
 
 terra-all: terrafmt terralint terravalidate
