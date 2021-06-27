@@ -1,74 +1,83 @@
-VERSION		?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || cat $(PWD)/.version 2> /dev/null || echo v0)
-PACKAGES	?= $(shell go list ./...)
-GOFILES		?= $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+GOVERSION		 ?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || cat $(PWD)/.version 2> /dev/null || echo v0)
+GOPACKAGES		 ?= $(shell go list ./...)
+GOFILES		     ?= $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+TERRAFORMVERSION ?= $(shell terraform version)
 
-.PHONY: help clean env
 .ONESHELL: #
+.DEFAULT: help
 
-default: help
+.PHONY: help
+help:
+	@echo 'Makefile for "Terraform Modules"'
+	@echo ''
+	@echo '  env                - Displays useful environment variables for golang and Terraform.'
+	@echo '  go-fmt             - Formats your golang code.'‚
+	@echo '  go-vet             - Checks your golang code for broken packages.'
+	@echo '  go-test            - Runs all terratests.'
+	@echo '  go-all             - Runs all golang commands from this Makefile.'
+	@echo '  terra-init         - Runs Terraform init in "examples" folder.'
+	@echo '  terra-fmt          - Fomtats your Terraform code.'
+	@echo '  terra-lint         - Lints your Terraform code.'
+	@echo '  terra-validate     - Checks if your Terraform configuration is valid.'
+	@echo '  terra-build        - Checks if your module can be build succesfully.'
+	@echo '  terra-all          - Runs all terra commands from this Makefile.'
+	@echo '  clean              - Clean all temporary files.'
 
-help: 
-	@echo 'usage: make [target] ...'
 
-## TODO add tools
-
+.PHONY: env
 env:  ## Print env vars
-	echo $(VERSION)
-	echo $(PACKAGES)
-	echo $(VERSION)
+	echo $(GOVERSION)
+	echo $(GOPACKAGES)
+	echo $(GOVERSION)
+	echo $(TERRAFORMVERSION)
 
-gofmt:  ## format the go source files
+.PHONY: go-fmt
+go-fmt:  ## format the go source files
 	go fmt ./...
 	goimports -w $(GOFILES)
 
-golint: ## run go lint on the source files
-	golint $(PACKAGES)
-
-govet:  ## run go vet on the source files
+.PHONY: go-vet
+go-vet:  ## run go vet on the source files
 	go vet ./...
 
-go-all: gofmt golint govet
+.PHONY: go-test
+go-test:
+	cd teratests/ && go test -v -timeout 60m
 
-gotest-basic: ## test units files
-	cd unit-tests/
-	go test terraform_test.go -run TestInitAndApplyAndIdempotent -v -timeout 60m
+.PHONY: go-all
+go-all: go-fmt go-vet go-test
 
-gotest-required:
-	cd unit-tests/
-	go test terraform_test.go -run TestAzureResourcesRequired -v -timeout 60m
-
-gotest-optional:
-	cd unit-tests/
-	go test terraform_test.go -run TestAzureResourcesOptional -v -timeout 60m
-
-gotest-all:
-	cd unit-tests/
-	go test -v -timeout 60m
-
-terrainit:
+.PHONY: terra-init
+terra-init:
 	cd examples/
 	terraform init
 
-terrafmt:  ## format terrafrom source files
+.PHONY: terra-fmt
+terra-fmt:  ## format terrafrom source files
 	terraform fmt -recursive
 
-terralint: ## lint terraform source files
+.PHONY: terra-lint
+terra-lint: ## lint terraform source files
 	tflint module/
 	tflint examples/
 
-terravalidate: ## valdiate terraform configuration
+.PHONY: terra-validate
+terra-validate: ## valdiate terraform configuration
 	cd examples/
 	terraform init
 	terraform validate
 
-terraApplyAndDestroy: ## Init, Apply and Destroy Terraform configuration
+.PHONY: terra-build
+terra-build: ## Init, Apply and Destroy Terraform configuration
 	cd examples
 	terraform init
 	terraform apply --auto-approve
 	terraform destroy --auto-approve
 
-terra-all: terrafmt terralint terravalidate
+.PHONY: terra-all
+terra-all: terrafmt terralint terravalidate terra-build
 
+.PHONY: clean
 clean:
 	go clean
 	find -name "*hcl" -delete
