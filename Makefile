@@ -58,7 +58,7 @@ terra-fmt:  ## format terrafrom source files
 
 .PHONY: terra-lint
 terra-lint: ## lint terraform source files
-	tflint module/
+	tflint .
 	tflint examples/
 
 .PHONY: terra-validate
