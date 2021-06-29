@@ -1,5 +1,5 @@
 ---
-name: "\U0001F2490 Question"
+name: "\U000270B Question"
 about: Create an issue to ask a question
 title: ''
 labels: question
