@@ -35,8 +35,41 @@ jobs:
 
       - name: Terraform format
         id: terraFormat
-        run: terraform fmt -recursive -no-color
+        run: terraform fmt -recursive -no-color -check
 
       - name: Terraform lint
         id: terraformLint
-        run: tflint . && tflint examples/
+        run: tflint --init -c .tflint.hcl && tflint -no-color --force
+
+  golng_format_vet:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        go_version: [ 1.16.5 ]
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go_version }}
+
+      - name: Go format
+        id: goFormat
+        run: go fmt ./...
+      
+      - name: Go vet
+        id: goVet
+        run: go vet ./...
+
+  terratests:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        terraform_version: [ 1.0 ]
+        go_version: [ 1.16.5 ]
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go_version }}
+
+      - name: Run Terratests
+        id: runTerratests
+        run: cd terratests/ && go test -v -timeout 60m
