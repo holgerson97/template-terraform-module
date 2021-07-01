@@ -17,13 +17,13 @@ defaults:
 jobs:
      
   terraform_format_validate:
+
     name: Format and validate Terraform Code Base
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-        terraform-version: [ 1.0 ]
-    runs-on: ${{ matrix.os }}
+        terraform_version: [ 1.0 ]
 
     steps:
       - uses: actions/checkout@v2
@@ -41,11 +41,16 @@ jobs:
 
   golang_format_vet:
 
+    name: Format and vet Golang Code Base
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./terratests
+
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
         go_version: [ 1.16.5 ]
-    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
@@ -56,21 +61,24 @@ jobs:
       - name: Go format
         id: goFormat
         run: go fmt .
-        working-directory: ./terratests
       
       - name: Go vet
         id: goVet
         run: go vet .
-        working-directory: ./terratests
 
   terratests:
 
+    name: Run Terratests against Terraform Code Base
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./terratests
+
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
         terraform_version: [ 1.0 ]
         go_version: [ 1.16.5 ]
-    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
@@ -80,9 +88,6 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go_version }}
-
-      - name: test
-        run: terraform --version
 
       - name: Run Terratests
         id: runTerratests
