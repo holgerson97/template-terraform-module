@@ -5,19 +5,19 @@ on:
     branches:
       - main
       - stage
-  pull_requests:
+  pull_request:
     branches:
       - main
       - stage
 
 jobs:
-
-  format_validate_lint:
+     
+  terraform_format_validate:
+    name: Format and validate Terraform Code Base
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
         terraform-version: [ 1.0 ]
-        tflint_version: [ latest ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -25,10 +25,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ matrix.terraform_version }}
-      - uses: terraform-linters/setup-tflint@v1
-        with:
-          tflint_version: ${{ matrix.tflint_version }}
-      
+     
       - name: Terraform init
         id: terraInit
         run: terraform init
@@ -37,16 +34,13 @@ jobs:
         id: terraFormat
         run: terraform fmt -recursive -no-color -check
 
-      - name: Terraform lint
-        id: terraformLint
-        run: tflint --init -c .tflint.hcl && tflint -no-color --force
-
-  golng_format_vet:
+  golang_format_vet:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
         go_version: [ 1.16.5 ]
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go_version }}
@@ -66,6 +60,7 @@ jobs:
         terraform_version: [ 1.0 ]
         go_version: [ 1.16.5 ]
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go_version }}
