@@ -1,2 +1,9 @@
 ---
 blank_issues_enabled: false
+
+contact_links:
+
+  - name: Homepage
+    url: https://e113.de
+    about: |-
+      Find our company here.

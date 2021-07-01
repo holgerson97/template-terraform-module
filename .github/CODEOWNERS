@@ -3,9 +3,9 @@
 
 # Terraform Owner
 * .tf                @
-
+‚
 # Terratest Owner
-unit-test/           @
+terratests/           @
 
 # Workflow Owner
 .github/workflows/   @
