@@ -10,13 +10,15 @@ on:
       - main
       - stage
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
      
   terraform_format_validate:
     name: Format and validate Terraform Code Base
-    defaults:
-      run:
-        shell: bash
+
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
@@ -38,14 +40,13 @@ jobs:
         run: terraform fmt -recursive -no-color -check
 
   golang_format_vet:
-    defaults:
-      run:
-        shell: bash
+
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
         go_version: [ 1.16.5 ]
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -63,9 +64,7 @@ jobs:
         working-directory: ./terratests
 
   terratests:
-    defaults:
-      run:
-        shell: bash
+
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
