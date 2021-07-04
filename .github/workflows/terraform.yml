@@ -14,6 +14,12 @@ defaults:
   run:
     shell: bash
 
+env:
+  TF_VAR_ARM_CLIENT_ID: ${{ secrets.TF_VAR_ARM_CLIENT_ID }}
+  TF_VAR_ARM_CLIENT_SECRET: ${{ secrets.TF_VAR_ARM_CLIENT_SECRET }}
+  TF_VAR_ARM_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_ARM_SUBSCRIPTION_ID }}
+  TF_VAR_ARM_TENANT_ID: ${{ secrets.TF_VAR_ARM_TENANT_ID }}
+
 jobs:
      
   terraform_format_validate:
@@ -88,8 +94,23 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go_version }}
+      - uses: azure/login@v1
+          with:
+            creds: '{"clientId":"${{ secrets.TF_VAR_ARM_CLIENT_ID }}","clientSecret":"${{ secrets.TF_VAR_ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.TF_VAR_ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TF_VAR_ARM_TENANT_ID }}"}'
+            enable-AzPSSession: false
 
       - name: Run Terratests
         id: runTerratests
         run: go test -v -timeout 60m
         working-directory: ./terratests
+
+    createPR:
+      
+      name: Create a pull request to main branch
+      needs: [terraform_format_validate, golang_format_vet, terratests]
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        committer: GitHub <noreply@github.com>
+        author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+        signoff: false
