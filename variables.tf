@@ -16,7 +16,7 @@ variable "naming" {
 variable "tags" {
   description = "Tags applied on all resources created by this module."
   type        = map(any)
-  default     = null
+  default     = {}
   sensitive   = false
 }
 
