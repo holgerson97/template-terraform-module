@@ -6,6 +6,7 @@
     - [General](#general)
     - [Variables](#variables)
     - [Outputs](#outputs)
+    - [Dynamic blocks](#dynamic-blocks)
     - [Resources & Data](#resources-and-data)
     - [Azure](#azure)
 - [Code Snippets](#code-snippets)
@@ -70,6 +71,22 @@ resource "azurerm_resource_group" "main" {
   count = var.enabled ? 1 : 0
 ```
 ****
+### Dynamic blocks
+* In order to have consistent and easy readable Terraform code we write every block as dynamic block. Even if only one iteration of this block is allowed. We do this for both required and optional.
+* Example for required/optional and only one iteration of a block is allowed
+```hcl
+
+dynamic "example" {
+
+  for_each = tolist([var.exampleBlock])
+
+  content {
+    ...
+  }
+
+}
+```
+****
 ### Azure
 * Every main resource is named like the following.
 ```hcl
@@ -85,6 +102,13 @@ resource "azurerm_resource_group" "main" {
 *****
 #### Resource Group
 We use a data block to import the resource group, that is going to be used as deployment target. However you can use more data blocks to import other resource groups too.
+```hcl
+variable "resourceGroupName" {
+  description = "Specify the resource group where resources are going to be deployed."
+  type        = string
+  sensitive   = false
+}
+```
 ```hcl
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group
 data "azurerm_resource_group" "main" {
